@@ -2,7 +2,7 @@
 layout: post
 title:  "Understanding an strace"
 date:   2015-03-20 12:15:00
-categories: Linux, Kernel
+categories: Linux Kernel
 ---
 
 `strace` is a useful tool to trace all the system calls made by a particular userspace program in Linux. The best part of `strace` is that it cannot be "turned off" even if the userspace program is a proprietary non-debug "stripped" program. It works by using the `ptrace()` system call, same syscall used by debuggers such as `gdb` to control the execution of a process and change its registers etc.
