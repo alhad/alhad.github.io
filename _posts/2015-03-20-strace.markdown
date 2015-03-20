@@ -1,0 +1,182 @@
+---
+layout: post
+title:  "Understanding an strace"
+date:   2015-03-20 12:15:00
+categories: Linux, Kernel
+---
+
+`strace` is a useful tool to trace all the system calls made by a particular userspace program in Linux. The best part of `strace` is that it cannot be "turned off" even if the userspace program is a proprietary non-debug "stripped" program. It works by using the `ptrace()` system call, same syscall used by debuggers such as `gdb` to control the execution of a process and change its registers etc.
+
+I thought it would be instructive to run a command under `strace` and see what system calls it make. What is the most common program run under Linux? Probably `ls`. So lets look at running `ls` under `strace`.
+
+{% highlight sh %}
+$ strace ls
+
+execve("/bin/ls", ["ls"], [/* 54 vars */]) = 0
+brk(0)                                  = 0x21e7000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921d0000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=119377, ...}) = 0
+mmap(NULL, 119377, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f96921b2000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libselinux.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\20T\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=121936, ...}) = 0
+mmap(NULL, 2221680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9691d91000
+mprotect(0x7f9691dae000, 2093056, PROT_NONE) = 0
+mmap(0x7f9691fad000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1c000) = 0x7f9691fad000
+mmap(0x7f9691faf000, 1648, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f9691faf000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/librt.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340!\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=31752, ...}) = 0
+mmap(NULL, 2128984, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9691b89000
+mprotect(0x7f9691b90000, 2093056, PROT_NONE) = 0
+mmap(0x7f9691d8f000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x6000) = 0x7f9691d8f000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libacl.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\33\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=31096, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921b1000
+mmap(NULL, 2126312, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9691981000
+mprotect(0x7f9691988000, 2093056, PROT_NONE) = 0
+mmap(0x7f9691b87000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x6000) = 0x7f9691b87000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\200\30\2\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1811128, ...}) = 0
+mmap(NULL, 3925176, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f96915c2000
+mprotect(0x7f9691777000, 2093056, PROT_NONE) = 0
+mmap(0x7f9691976000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1b4000) = 0x7f9691976000
+mmap(0x7f969197c000, 17592, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f969197c000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340\r\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=14768, ...}) = 0
+mmap(NULL, 2109704, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f96913be000
+mprotect(0x7f96913c0000, 2097152, PROT_NONE) = 0
+mmap(0x7f96915c0000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7f96915c0000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\200l\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=135366, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921b0000
+mmap(NULL, 2212904, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f96911a1000
+mprotect(0x7f96911b9000, 2093056, PROT_NONE) = 0
+mmap(0x7f96913b8000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x17000) = 0x7f96913b8000
+mmap(0x7f96913ba000, 13352, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f96913ba000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libattr.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340\17\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=18552, ...}) = 0
+mmap(NULL, 2113736, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9690f9c000
+mprotect(0x7f9690fa0000, 2093056, PROT_NONE) = 0
+mmap(0x7f969119f000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x3000) = 0x7f969119f000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921af000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921ad000
+arch_prctl(ARCH_SET_FS, 0x7f96921ad7c0) = 0
+mprotect(0x7f9691976000, 16384, PROT_READ) = 0
+mprotect(0x7f969119f000, 4096, PROT_READ) = 0
+mprotect(0x7f96913b8000, 4096, PROT_READ) = 0
+mprotect(0x7f96915c0000, 4096, PROT_READ) = 0
+mprotect(0x7f9691b87000, 4096, PROT_READ) = 0
+mprotect(0x7f9691d8f000, 4096, PROT_READ) = 0
+mprotect(0x7f9691fad000, 4096, PROT_READ) = 0
+mprotect(0x618000, 4096, PROT_READ)     = 0
+mprotect(0x7f96921d2000, 4096, PROT_READ) = 0
+munmap(0x7f96921b2000, 119377)          = 0
+set_tid_address(0x7f96921ada90)         = 29160
+set_robust_list(0x7f96921adaa0, 0x18)   = 0
+futex(0x7fffd4d19dcc, FUTEX_WAIT_BITSET_PRIVATE|FUTEX_CLOCK_REALTIME, 1, NULL, 7f96921ad7c0) = -1 EAGAIN (Resource temporarily unavailable)
+rt_sigaction(SIGRTMIN, {0x7f96911a7750, [], SA_RESTORER|SA_SIGINFO, 0x7f96911b0cb0}, NULL, 8) = 0
+rt_sigaction(SIGRT_1, {0x7f96911a77e0, [], SA_RESTORER|SA_RESTART|SA_SIGINFO, 0x7f96911b0cb0}, NULL, 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM_INFINITY}) = 0
+statfs("/selinux", {f_type="EXT2_SUPER_MAGIC", f_bsize=4096, f_blocks=2580302, f_bfree=1383646, f_bavail=1252575, f_files=655360, f_ffree=428591, f_fsid={310350911, 465429018}, f_namelen=255, f_frsize=4096}) = 0
+brk(0)                                  = 0x21e7000
+brk(0x2208000)                          = 0x2208000
+open("/proc/filesystems", O_RDONLY)     = 3
+fstat(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921cf000
+read(3, "nodev\tsysfs\nnodev\trootfs\nnodev\tb"..., 1024) = 376
+read(3, "", 1024)                       = 0
+close(3)                                = 0
+munmap(0x7f96921cf000, 4096)            = 0
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2919792, ...}) = 0
+mmap(NULL, 2919792, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f9690cd3000
+close(3)                                = 0
+ioctl(1, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(1, TIOCGWINSZ, {ws_row=69, ws_col=130, ws_xpixel=0, ws_ypixel=0}) = 0
+openat(AT_FDCWD, ".", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+getdents(3, /* 6 entries */, 32768)     = 176
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 8), ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921cf000
+write(1, "file1  file2  file3  strace.out\n", 32) = 32
+close(1)                                = 0
+munmap(0x7f96921cf000, 4096)            = 0
+close(2)                                = 0
+exit_group(0)                           = ?
+{% endhighlight %}
+
+Ok, that is an incredible amount of syscalls for a simple command. While going through all of them will create a book probably, here is a summary of the key ones, and the operations that are happening
+
+### Execution of the ls program itself
+
+`execve("/bin/ls", ["ls"], [/* 54 vars */]) = 0`
+`execve()` is the syscall used to execute a new program. Here, `strace` is running `ls`.
+
+### Usage of the dynamic linker/loader. 
+
+These programs are responsible for finding and loading any dynamic libraries needed by a program. 
+
+### SELinux
+
+SELinux userspace utilities can be used for enforcing security, possibly being used by `ls` here for accessing some ACLs or something like that.
+
+### mmap
+
+`mmap()` use is ubiquituous, whether it is for mapping areas from shared libraries to link against, or access other pages. Memory mapped IO is much faster than standard IO, which is why there is liberal use of it.
+
+### libc
+
+`libc.so` is the C standard library, in dynamic form. Almost all programs end up using this library for sure.
+
+### Actual `ls` functionality
+
+That functionality happens in these lines:
+
+{% highlight sh %}
+openat(AT_FDCWD, ".", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+getdents(3, /* 6 entries */, 32768)     = 176
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 8), ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f96921cf000
+write(1, "file1  file2  file3  strace.out\n", 32) = 32
+close(1)                                = 0
+{% endhighlight %}
+
+The `openat()` syscall is like `open()` except it works w.r.t. a directory. The `AT_FDCWD` means "the file descriptor corresponding to the current directory". The second parameter is simply "." i.e. the current directory. The flags contain `O_DIRECTORY` which specifies that we are opening a directory.
+
+Then we use `getdents()` on the returned FD (which is 3 - interesting how after 0, 1, 2, which are STDIN, STDOUT, STDERR, Linux just assigns FDs numerically), to actually read directory entries. It returns an array of `linux_dirent` entries of size `count` (i.e. total count in bytes). This also shows another syscall convention - drivers are free to return less than what the userspace asks for, or possibly have more data than the buffer can fit, and thus require syscall users to keep calling until returned size is 0, which is why we see the repeated call to `getdents()`. 
+
+Finally, we have a list of `linux_dirent` structures, of which one of the fields is the file name. These file names are accumulated, and sent out to STDOUT (the `write()` syscall). The intermediate `mmap()` seems to be a memory-mapped read of STDIN, which not entirely sure why it is required.
+
+The key point from all of this is, *everything* that userspace wants to do has to happen through system calls, no other way to use kernel services from userspace (of course they hammer that into you in every book on the kernel, but its quite something see it in action).
+
+Ofcourse, not all of these syscalls are directly made by the userspace code, most of them come through libraries such as `libc` that will make the actual syscalls. For example `printf()` C library function is implemented as a `write()` syscall. `printf()` takes care of all the formatting and other things requiredm and sends a raw bufer to `write()` which is the point at which the call enters the kernel, and then the kernel takes care of figuring out the terminal at which the user is running the code (well that's where STDIN is mapped to), and sending the actual text to that output device.
+
+You can have all your fancy OO frameworks, toolkits, dynamic programming languages and what not, but underneath, you are just a heap of system calls (well for the most part).
