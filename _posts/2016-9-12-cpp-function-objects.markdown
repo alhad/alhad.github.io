@@ -40,7 +40,7 @@ do_something_useful(input, Callback_Fn(my_obj))
 
 {% endhighlight %}
 
-Since Callback_Fn has an operator() that takes an int and returns void, that matches the function pointer signature of void(*tell_me_when_done)(int). Thus when the C style API calls its callback, that will go to the function object's operator(), which will then forward it to our object's callback method. The function object, since its an object after all, can maintain state, and in this case we have chosen to give it our created object. 
+Since `Callback_Fn` has an `operator()` that takes an `int` and returns `void`, that matches the function pointer signature of `void(*tell_me_when_done)(int)`. Thus when the C style API calls its callback, that will go to the function object's `operator()`, which will then forward it to our object's callback method. The function object, since its an object after all, can maintain state, and in this case we have chosen to give it our created object. 
 
 Thus we can provide C++ methods where a C style callback is to be expected. 
 
