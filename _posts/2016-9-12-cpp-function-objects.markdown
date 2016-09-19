@@ -9,7 +9,7 @@ I have often landed up in a situation where I really need to pass a C++ method i
 
 Next swipe at the problem: how about `mem_fn()`. That is a function adaptor that produces a function object that can be called as a nonmember function. But that requires you to pass the object on which the callback is to be called as a parameter to the callback. But I don't want to mess with the existing C style interface that defines the callback. Then what?
 
-Function objects to the rescue. In C++, a function object is essentially "anything that can be called as a function". That means anything that responds to the "function call operator" i.e. `operator()`. That can be a struct or a class that implements operator(). Perfect! That is what I need. Here's how to do it:
+Function objects to the rescue. In C++, a function object is essentially "anything that can be called as a function". That means anything that responds to the "function call operator" i.e. `operator()`. That can be a struct or a class that implements `operator()`. Perfect! That is what I need. Here's how to do it:
 
 {% highlight c++ %}
 
